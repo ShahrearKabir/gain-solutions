@@ -1,7 +1,7 @@
 # gain-solutions
  assignment
  
-Database file added in database folder.
+Database file added in database folder. OR Migrate and add new subscriber and segment logic
  
 # subscriber save and datatable
 Route::get('/subscriber', 'SubscriberController@index');
