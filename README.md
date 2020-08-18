@@ -1,6 +1,8 @@
 # gain-solutions
  assignment
  
+Database file added in database folder.
+ 
 # subscriber save and datatable
 Route::get('/subscriber', 'SubscriberController@index');
 Route::post('/subscriber/save', 'SubscriberController@store');
