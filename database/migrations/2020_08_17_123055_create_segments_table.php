@@ -16,10 +16,10 @@ class CreateSegmentsTable extends Migration
         Schema::create('segments', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('logic_field')->nullable();
-            $table->string('text_type')->nullable();
-            $table->string('date_type')->nullable();
-            $table->timestamp('date_from')->nullable();
+            // $table->string('logic_field')->nullable();
+            // $table->string('text_type')->nullable();
+            // $table->string('date_type')->nullable();
+            // $table->timestamp('date_from')->nullable();
             $table->timestamps();
         });
     }

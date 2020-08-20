@@ -11,16 +11,20 @@
                 <div class="form-group">
                     <label class="col-md-12 control-label">Segment </label>
                     
+                    <div class="col-md-8">
                         <select class="select2-multiple form-control select-primary" name="logic_field" onchange="getLogiFieldValue(this)">
-                            <option value="" selected>Select One</option>
+                            <!-- <option value="" selected>Select One</option> -->
                             @foreach($all_segments as $segment)
                                 <option value="{{$segment}}">{{$segment->name}}</option>
                             @endforeach
                         </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" class="btn btn-bordered btn-info btn-block" value="Submit">
+                    <div class="col-md-2">
+                        <input type="submit" class="btn btn-bordered btn-info btn-block" value="Search">
+                    </div>
                 </div>
 
             </form>

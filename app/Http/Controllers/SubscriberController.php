@@ -78,42 +78,59 @@ class SubscriberController extends Controller
         $all_segments = Segment::get();
 
         $get_json = json_decode($request->logic_field);
+        $logicDetails = $all_segments->find($get_json->id)->logic;
 
-        if($get_json->text_type){
-            
-            
-            // dd( $get_json );
-            $all_subscribers = Subscriber::select('first_name', 'last_name', 'email', 'birth_day',)
-                ->orWhere($get_json->logic_field, "like", "%" . $get_json->text_type . "%")
-                ->get();
-        }
-        elseif($get_json->date_from){
+        $query = Subscriber::select();
+
+        foreach ($logicDetails as $logic) {
 
             $setType = '';
-            if($get_json->date_type == 'before' ){
+            if($logic->logic_type == 'before' ){
                 $setType = '<';
             }
-            elseif($get_json->date_type == 'after' ){
+            elseif($logic->logic_type == 'after' ){
                 $setType = '>';
             }
-            elseif($get_json->date_type == 'on or before' ){
+            elseif($logic->logic_type == 'on or before' ){
                 $setType = '<=';
             }
-            elseif($get_json->date_type == 'on or after' ){
-                $setType = '=>';
+            elseif($logic->logic_type == 'on or after' ){
+                $setType = '>=';
             }
-            elseif($get_json->date_type == 'on' ){
+            elseif($logic->logic_type == 'on' ){
                 $setType = '=';
             }
 
-            $all_subscribers = Subscriber::select('first_name', 'last_name', 'email', 'birth_day',)
-                ->orWhere($get_json->logic_field,  $setType ,$get_json->date_from)
-                ->get();
-        }
-        else{
-            $all_subscribers = Subscriber::select('first_name', 'last_name', 'email', 'birth_day',)->get();
-        }
         
+            if ($logic->text_type) {
+                // $query->where($logic->logic_field, "like", "%" . $logic->text_type . "%");
+                $a = $logic->logic_field;
+                $b = $logic->text_type;
+                $query->where(function ($query) use ($a, $b) {
+                    $query->where($a, 'like', "%$b")
+                        ->orWhere($a, 'like', "$b%")
+                        ->orWhere($a, 'like', "%$b%")
+                        ->orWhere($a, '=', "$b%");
+                });
+                // dump("or if");
+            } elseif ($logic->date_from && !$logic->date_to) {
+                $query->where($logic->logic_field,  $setType, $logic->date_from);
+                // dump("or else if 1");
+            } elseif ($logic->date_from && $logic->date_to) {
+                $query->whereBetween($logic->logic_field, [$logic->date_from, $logic->date_to]);
+                // dump("or else if 2");
+            }
+        
+
+        
+
+            // $query->orWhere($logic->logic_field, "like", "%" . $logic->text_type . "%");
+            // $query->orWhere($logic->logic_field,  $setType, $logic->date_from);
+            // $query->orWhereBetween($logic->logic_field, [$logic->date_from, $logic->date_to]);
+            
+        }
+
+        $all_subscribers = $query->get();
 
         return view('subscriber_list', compact('all_segments', 'all_subscribers'));
     }

@@ -52,10 +52,10 @@
                         <div class="col-10">
                             <div class="form-group" data-role="dynamic-fields">
                                 <div class="form-inline">
-                                    <div class="row">
-                                        <div class="col-md-2">
-                                            <!-- <input type="text" name="itemid[]" hidden /> -->
-                                            <select class="form-control" name="logic_field[]" onchange="getLogiFieldValue(this)">
+                                    <div class="col-12 row">
+                                        <div class="col-md-3">
+                                            
+                                            <select class="form-control" name="logic_field[]" onchange="getLogicFieldValue(this)">
                                                 <option value="" selected>Select One</option>
                                                 @foreach($subscriber_columns as $column)
                                                     <option value="{{$column}}">{{$column}}</option>
@@ -63,8 +63,8 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2">
-                                            <select class="form-control" name="date_type[]">
+                                        <div class="col-md-3">
+                                            <select class="form-control" name="logic_type[]" onchange="getLogicBetweenValue(this)">
                                                 <option value="" selected>Select One</option>
                                                 @foreach($date_type_conditions as $date_type_condition)
                                                     <option value="{{$date_type_condition}}">{{$date_type_condition}}</option>
@@ -72,7 +72,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2 date" data-provide="datepicker">
+                                        <div class="col-md-2 date" id="datetimepicker" data-provide="datepicker">
                                             <div class="input-group">
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-calendar text-alert pr11"></i>
@@ -81,6 +81,8 @@
                                                 <input type="text" class="select2-single form-control" name="date_from[]" placeholder="yyyy-mm-dd" autocomplete="off">
                                             </div>
                                         </div>
+
+                                        
 
                                         <!-- <div class="input-group date" data-provide="datepicker">
                                             <input type="text" class="form-control">
@@ -92,6 +94,21 @@
                                         <div class="col-md-2" id="text_type">
                                             <input type="text" name="text_type[]" class=" form-control" placeholder="Enter Text Type">
                                         </div>
+
+                                        <div class="col-md-2 date" id="datetimepicker2" data-provide="datepicker">
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-calendar text-alert pr11"></i>
+                                                </div>
+
+                                                <input type="text" class="select2-single form-control" name="date_to[]" placeholder="yyyy-mm-dd" autocomplete="off">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 d-none">
+                                            <input type="text" id="select_by" name="select_by[]" />
+                                        </div>
+
                                         <div class="col-md-2">
                                             <button class="btn btn-primary " data-role="add">+ Or</button>
                                             <!-- </div>
@@ -101,8 +118,9 @@
 
                                     </div>
                                 </div>
-
-
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary " data-role="and">+ And</button>
                             </div>
                         </div>
                     </div>
@@ -126,18 +144,36 @@
             <table class="table table-striped">
                 <tr>
                     <th>Name</th>
-                    <th>logic_field</th>
+                    <!-- <th>logic_field</th>
                     <th>text_type</th>
                     <th>date_type</th>
-                    <th>date_from</th>
+                    <th>date_from</th> -->
                 </tr>
                 @foreach($all_segments as $segment)
                 <tr>
-                    <td>{{$segment->name}}</td>
-                    <td>{{$segment->logic_field}}</td>
+                    <td><b>{{$segment->name}}</b> <i>has {{ count($segment->logicDetails) }} conditions</i></td>
+                    
+                    <td>
+                    @foreach($segment->logicDetails as $logic)
+                    <td>
+                        {{$logic->logic_field}}
+                        <br/>
+                        {{$logic->logic_type}}
+                        <br/>
+                        {{$logic->text_type}}
+                        <br/>
+                        {{$logic->date_from}}
+                        <br/>
+                        {{$logic->date_to}}
+                        <br/>
+                        {{$logic->select_by}}
+                    </td>
+                    @endforeach
+                    </td>
+                    <!-- <td>{{$segment->logic_field}}</td>
                     <td>{{$segment->text_type}}</td>
                     <td>{{$segment->date_type}}</td>
-                    <td>{{$segment->date_from}}</td>
+                    <td>{{$segment->date_from}}</td> -->
                 </tr>
                 @endforeach
         </div>
@@ -150,9 +186,9 @@
 
         $('.datepicker').datepicker();
 
-        $('#datetimepicker').datepicker({
-            format: 'yyyy-mm-dd'
-        });
+        // $('#datetimepicker').datepicker({
+        //     format: 'yyyy-mm-dd'
+        // });
 
 
 
@@ -170,6 +206,7 @@
             'click',
             '[data-role="dynamic-fields"] > .form-inline [data-role="add"]',
             function(e) {
+                console.log('datarole');
                 e.preventDefault();
                 var container = $(this).closest('[data-role="dynamic-fields"]');
                 new_field_group = container.children().filter('.form-inline:first-child').clone();
@@ -177,29 +214,75 @@
                     $(this).val('');
                 });
                 container.append(new_field_group);
+                let setValue = e.target.parentNode.parentNode.children[5].children[0]
+                setValue.value = "or"
+
+                // console.log(e.target.parentNode.parentNode.children[5].children);
+                // console.log(setValue);
+            }
+        );
+
+
+        $(document).on(
+            'click',
+            // '[data-role="dynamic-fields"] > .form-inline [data-role="add"]' ||
+             '[data-role="and"]',
+            function(e) {
+                e.preventDefault();
+                var container = $(this).parent().parent().children().children().children().children()
+                let length = container.length
+                
+
+                new_field_group = container.parent().parent().filter('.form-inline:first-child').clone();
+                new_field_group.find('input').each(function() {
+                    $(this).val('');
+                });
+                container.parent().parent().parent().append(new_field_group);
+                container[container.length-2].children[0].value = "and"
+                console.log(container);
+                
             }
         );
 
 
     });
 
-    // let dateField = document.getElementById('datetimepicker')
-    // let textField = document.getElementById('text_type')
+    let dateField = document.getElementById('datetimepicker')
+    let dateField2 = document.getElementById('datetimepicker2')
+    let textField = document.getElementById('text_type')
 
-    // dateField.style.display = 'none'
-    // textField.style.display = 'none'
+    dateField.style.display = 'none'
+    dateField2.style.display = 'none'
+    textField.style.display = 'none'
 
-    // getLogiFieldValue = (e) => {
-    //     var x = (e.value || e.options[e.selectedIndex].value);
-    //     console.log(x)
-    //     if (x == 'first_name' || x == 'last_name' || x == 'email') {
-    //         dateField.style.display = 'none'
-    //         textField.style.display = 'block'
-    //     } else {
-    //         textField.style.display = 'none'
-    //         dateField.style.display = 'block'
-    //     }
-    // }
+    function getLogicFieldValue(e){
+
+        // this.parentNode
+        console.log(e.parentNode.parentNode.children);
+        var x = (e.value || e.options[e.selectedIndex].value);
+        console.log(x)
+        if (x == 'first_name' || x == 'last_name' || x == 'email') {
+            e.parentNode.parentNode.children[2].style.display = 'none'
+            e.parentNode.parentNode.children[3].style.display = 'block'
+            e.parentNode.parentNode.children[4].style.display = 'none'
+        } else {
+            e.parentNode.parentNode.children[3].style.display = 'none'
+            e.parentNode.parentNode.children[2].style.display = 'block'
+        }
+    }
+
+    function getLogicBetweenValue(e) {
+        console.log(e.parentNode.parentNode.children);
+        var x = (e.value || e.options[e.selectedIndex].value);
+        console.log(x)
+
+        if (x == 'between') {
+            e.parentNode.parentNode.children[4].style.display = 'block'
+        }
+        else{
+            e.parentNode.parentNode.children[4].style.display = 'none'
+        }
+    }
 
     // var max_fields = 10;
     // var wrapper = $(".container1");

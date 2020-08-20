@@ -17,6 +17,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script>
     <!-- Styles -->
+    <style>
+        input, select{
+            width: 100% !important;
+        }
+    </style>
     <!-- <style>
             html, body {
                 background-color: #fff;
